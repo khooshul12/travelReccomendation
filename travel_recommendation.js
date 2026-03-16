@@ -31,43 +31,26 @@ searchBtn.addEventListener("click", function () {
 
   let results = [];
 
+  // beach / beaches
   if (keyword === "beach" || keyword === "beaches") {
-    results = travelData.beaches;
-  } else if (keyword === "temple" || keyword === "temples") {
-    results = travelData.temples;
-  } else {
-    travelData.countries.forEach(country => {
-      if (country.name.toLowerCase().includes(keyword)) {
-        results = results.concat(country.cities);
-      }
+    results = travelData.beaches.slice(0, 2);
+  }
 
-      country.cities.forEach(city => {
-        if (
-          city.name.toLowerCase().includes(keyword) ||
-          city.description.toLowerCase().includes(keyword)
-        ) {
-          results.push(city);
-        }
-      });
-    });
+  // temple / temples
+  else if (keyword === "temple" || keyword === "temples") {
+    results = travelData.temples.slice(0, 2);
+  }
 
-    travelData.temples.forEach(temple => {
-      if (
-        temple.name.toLowerCase().includes(keyword) ||
-        temple.description.toLowerCase().includes(keyword)
-      ) {
-        results.push(temple);
-      }
-    });
+  // country search → only 2 cities from that country
+  else {
+    const matchedCountry = travelData.countries.find(country =>
+      country.name.toLowerCase() === keyword ||
+      country.name.toLowerCase().includes(keyword)
+    );
 
-    travelData.beaches.forEach(beach => {
-      if (
-        beach.name.toLowerCase().includes(keyword) ||
-        beach.description.toLowerCase().includes(keyword)
-      ) {
-        results.push(beach);
-      }
-    });
+    if (matchedCountry) {
+      results = matchedCountry.cities.slice(0, 2);
+    }
   }
 
   if (results.length === 0) {
@@ -75,11 +58,26 @@ searchBtn.addEventListener("click", function () {
     return;
   }
 
-  displayResults(results);
+  displayResults(results, keyword);
 });
 
-function displayResults(results) {
-  resultsContainer.innerHTML = "";
+function displayResults(results, keyword) {
+  let heading = "Search Results";
+
+  if (keyword === "beach" || keyword === "beaches") {
+    heading = "Beach Recommendations";
+  } else if (keyword === "temple" || keyword === "temples") {
+    heading = "Temple Recommendations";
+  } else {
+    heading = "Country Recommendations";
+  }
+
+  resultsContainer.innerHTML = `
+    <h2 class="results-title">${heading}</h2>
+    <div class="results-grid" id="resultsGrid"></div>
+  `;
+
+  const resultsGrid = document.getElementById("resultsGrid");
 
   results.forEach(place => {
     const card = document.createElement("div");
@@ -92,7 +90,7 @@ function displayResults(results) {
       <button>Visit</button>
     `;
 
-    resultsContainer.appendChild(card);
+    resultsGrid.appendChild(card);
   });
 }
 
